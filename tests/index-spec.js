@@ -24,7 +24,7 @@ describe('index', function() {
         });
     });
 
-    context.skip('when a path is provided', function () {
+    context('when a path is provided', function () {
         context('when everything goes according the plan', function () {
             it('should delete the expected files', function (done) {
                 const file = `
@@ -46,18 +46,34 @@ describe('index', function() {
                     cb(null, ['/dummy/folderA/a.wildcard', '/dummy/folderA/folderB/b.wildcard']);
                 });
 
-                mock('query-paths', () => Promise.resolve(['/dummy/folderA']));
+                mock('query-paths', () => ({
+                    on: (e, cb) =>  cb('/dummy/folderA')
+                }));
 
                 const removeGitIgnored = requireUncached('../src/index');
 
-                removeGitIgnored('/dummy').then((files) => {
-                    expect(files).to.deep.equal([
-                        '/dummy/folderA/a.wildcard',
-                        '/dummy/folderA/folderB/b.wildcard',
-                        '/dummy/folderA/normal.json'
-                    ]);
+                var count = 0;
+                const evt = removeGitIgnored('/dummy');
+                evt.on('project-start', (path) => {
+                    expect(path).to.equal('/dummy/folderA');
+                });
 
-                    expect(fs.removeAsync.callCount).to.equal(3);
+                evt.on('file-deleted', (path) => {
+                    count++;
+
+                    if (count === 1) {
+                        expect(path).to.equal('/dummy/folderA/a.wildcard');
+                        return;
+                    } else if (count === 2) {
+                        expect(path).to.equal('/dummy/folderA/folderB/b.wildcard');
+                        return;
+                    }
+
+                    expect(path).to.equal('/dummy/folderA/normal.json');
+                });
+
+                evt.on('project-completed', (path) => {
+                    expect(path).to.equal('/dummy/folderA');
                     done();
                 });
             });
@@ -65,12 +81,6 @@ describe('index', function() {
 
         context('when readFileAsync fails', function () {
             it('should continue without breaking', function (done) {
-                const file = `
-                #comment
-                *.wildcard
-                normal.json
-                `;
-
                 const fs = {
                     readFileAsync: sandbox.stub().returns(Promise.reject()),
                     removeAsync: sandbox.stub().returns(Promise.resolve())
@@ -84,12 +94,23 @@ describe('index', function() {
                     cb(null, ['/dummy/folderA/a.wildcard', '/dummy/folderA/folderB/b.wildcard']);
                 });
 
-                mock('query-paths', () => Promise.resolve(['/dummy/folderA']));
+                mock('query-paths', () => ({
+                    on: (e, cb) =>  cb('/dummy/folderA')
+                }));
 
                 const removeGitIgnored = requireUncached('../src/index');
 
-                removeGitIgnored('/dummy').then((files) => {
-                    expect(files).to.deep.equal([]);
+                const evt = removeGitIgnored('/dummy');
+                evt.on('project-start', (path) => {
+                    expect(path).to.equal('/dummy/folderA');
+                });
+
+                evt.on('file-deleted', (path) => {
+                    console.log('file-deleted', path);
+                });
+
+                evt.on('project-completed', (path) => {
+                    expect(path).to.equal('/dummy/folderA');
                     done();
                 });
             });
@@ -114,12 +135,23 @@ describe('index', function() {
 
                 mock('glob', (file, cb) => { cb('ERROR'); });
 
-                mock('query-paths', () => Promise.resolve(['/dummy/folderA']));
+                mock('query-paths', () => ({
+                    on: (e, cb) =>  cb('/dummy/folderA')
+                }));
 
                 const removeGitIgnored = requireUncached('../src/index');
 
-                removeGitIgnored('/dummy').then((files) => {
-                    expect(files).to.deep.equal(['/dummy/folderA/normal.json']);
+                const evt = removeGitIgnored('/dummy');
+                evt.on('project-start', (path) => {
+                    expect(path).to.equal('/dummy/folderA');
+                });
+
+                evt.on('file-deleted', (path) => {
+                    expect(path).to.equal('/dummy/folderA/normal.json');
+                });
+
+                evt.on('project-completed', (path) => {
+                    expect(path).to.equal('/dummy/folderA');
                     done();
                 });
             });

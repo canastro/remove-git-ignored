@@ -91,9 +91,9 @@ module.exports = function removeGitIgnored (rootPath) {
 
         readFile(path)
             .then(expandPaths)
-            .then((lines) => lines.map((line) => removeFile(line).then(() => {
+            .then((lines) => Promise.all(lines.map((line) => removeFile(line).then(() => {
                 eventEmitter.emit('file-deleted', line);
-            })))
+            }))))
             .then(() => {
                 eventEmitter.emit('project-completed', path);
             });
