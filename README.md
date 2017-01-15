@@ -32,4 +32,8 @@ remove.on('file-deleted', (file) => {
 remove.on('project-completed', (path) => {
     console.log('project completed: ', path);
 });
+
+remove.on('end', () => {
+    console.log('end');
+});
 ```

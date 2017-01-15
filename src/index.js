@@ -83,13 +83,14 @@ module.exports = function removeGitIgnored (rootPath) {
         throw new Error('REMOVE-GIT-IGNORED: invalid parameters');
     }
 
+    const promises = [];
     const eventEmitter = new events.EventEmitter();
     const queryPath = queryPaths(rootPath, '.gitignore');
 
     queryPath.on('data', (path) => {
         eventEmitter.emit('project-start', path);
 
-        readFile(path)
+        const promise = readFile(path)
             .then(expandPaths)
             .then((lines) => Promise.all(lines.map((line) => removeFile(line).then(() => {
                 eventEmitter.emit('file-deleted', line);
@@ -97,6 +98,14 @@ module.exports = function removeGitIgnored (rootPath) {
             .then(() => {
                 eventEmitter.emit('project-completed', path);
             });
+
+        promises.push(promise);
+    });
+
+    queryPath.on('end', () => {
+        Promise.all(promises).then(() => {
+            eventEmitter.emit('end');
+        });
     });
 
     return eventEmitter;
