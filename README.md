@@ -11,16 +11,25 @@ I had a lot of old projects that I didn't worked for a while and I was running o
 After that I thought I should have a better way to deal with this and started creating a electron application to manage my workspace, and created a few of core modules to support it, such as:
 * [query-paths](https://github.com/canastro/query-paths)
 * [remove-git-ignored](https://github.com/canastro/remove-git-ignored)
+* [bulk-run-nsp](https://github.com/canastro/bulk-run-nsp)
 
 ## How it works?
 This module uses [query-paths](https://github.com/canastro/query-paths) to recursively find all the folders with a .gitignore. Then it reads all these files and deletes all files that match what you have defined in it.
 
 ## Usage
 ```js
-var removeGitIgnored = require('../src/index');
+const removeGitIgnored = require('../src/index');
+const remove = removeGitIgnored('/Users/username/dev');
 
-removeGitIgnored('/Users/username/dev')
-    .then(function (response) {
-        console.log('Deleted files: ', response);
-    });
+remove.on('project-start', (path) => {
+    console.log('project started: ', path);
+});
+
+remove.on('file-deleted', (file) => {
+    console.log('file deleted: ', file);
+});
+
+remove.on('project-completed', (path) => {
+    console.log('project completed: ', path);
+});
 ```

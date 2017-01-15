@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const events = require('events');
 const promise = require('bluebird');
 const fs = promise.promisifyAll(require('fs-extra'));
 const glob = require('glob');
@@ -50,11 +51,11 @@ const removeFile = (filePath) => fs.removeAsync(filePath).then(() => filePath);
  * Otherwise is just a direct reference to a file and should be added to the list of files
  * to be deleted
  * @method  expandPaths
- * @param   {Array}    projects - Array of projects with `basePath: String` and `lines: Array`
+ * @param   {Object}    project - Object with `basePath: String` and `lines: Array`
  * @returns {Array}
  */
-const expandPaths = (projects) => {
-    const promises = projects.map((project) => Promise.all(project.lines.map((line) => {
+const expandPaths = (project) => {
+    const promises = project.lines.map((line) => {
         // Ignore comments
         if (line.startsWith('#')) {
             return Promise.resolve([]);
@@ -72,7 +73,7 @@ const expandPaths = (projects) => {
                 return resolve(files);
             });
         });
-    })).then((files) => files.reduce((x, y) => x.concat(y), [])));
+    });
 
     return Promise.all(promises).then((files) => files.reduce((x, y) => x.concat(y), []));
 };
@@ -82,8 +83,21 @@ module.exports = function removeGitIgnored (rootPath) {
         throw new Error('REMOVE-GIT-IGNORED: invalid parameters');
     }
 
-    return queryPaths(rootPath, '.gitignore')
-        .then(basePaths => Promise.all(basePaths.map(readFile)))
-        .then(projects => expandPaths(projects))
-        .then(lines => Promise.all(lines.map(removeFile)));
+    const eventEmitter = new events.EventEmitter();
+    const queryPath = queryPaths(rootPath, '.gitignore');
+
+    queryPath.on('data', (path) => {
+        eventEmitter.emit('project-start', path);
+
+        readFile(path)
+            .then(expandPaths)
+            .then((lines) => lines.map((line) => removeFile(line).then(() => {
+                eventEmitter.emit('file-deleted', line);
+            })))
+            .then(() => {
+                eventEmitter.emit('project-completed', path);
+            });
+    });
+
+    return eventEmitter;
 };

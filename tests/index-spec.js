@@ -24,7 +24,7 @@ describe('index', function() {
         });
     });
 
-    context('when a path is provided', function () {
+    context.skip('when a path is provided', function () {
         context('when everything goes according the plan', function () {
             it('should delete the expected files', function (done) {
                 const file = `
