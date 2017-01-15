@@ -1,0 +1,44 @@
+{
+  "name": "remove-git-ignored",
+  "version": "1.0.0",
+  "description": "Small library that will find all .gitignore files from a rootPath folder and will delete all the ignored files.",
+  "main": "src/index.js",
+  "scripts": {
+    "eslint": "eslint src/**/*.js",
+    "test": "npm run eslint && istanbul cover ./node_modules/.bin/_mocha tests",
+    "test:dev": "mocha tests --recursive --watch",
+    "codecov": "cat coverage/lcov.info | ./node_modules/codecov.io/bin/codecov.io.js"
+  },
+  "author": "Ricardo Canastro",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canastro/remove-git-ignored"
+  },
+  "bugs": {
+    "url": "https://github.com/canastro/remove-git-ignored/issues"
+  },
+  "keywords": [
+    "git",
+    "path",
+    "remove",
+    "ignore",
+    "ignored"
+  ],
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "codecov.io": "^0.1.6",
+    "eslint": "^3.13.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2",
+    "mock-require": "^2.0.1",
+    "require-uncached": "^1.0.3",
+    "sinon": "^1.17.3"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "fs-extra": "^1.0.0",
+    "glob": "^7.1.1",
+    "query-paths": "^1.0.0"
+  }
+}
