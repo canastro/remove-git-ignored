@@ -16,10 +16,25 @@ After that I thought I should have a better way to deal with this and started cr
 ## How it works?
 This module uses [query-paths](https://github.com/canastro/query-paths) to recursively find all the folders with a .gitignore. Then it reads all these files and deletes all files that match what you have defined in it.
 
+## Demo
+[![asciicast](https://asciinema.org/a/dcarhkuhrd41g5t7boh6q3mte.png)](https://asciinema.org/a/dcarhkuhrd41g5t7boh6q3mte)
+
 ## Usage
+### As cli
+```js
+> npm i -g remove-git-ignored
+
+# Go to the desired root folder
+> remove-git-ignored
+```
+
+### As a node module
 ```js
 const removeGitIgnored = require('remove-git-ignored');
-const remove = removeGitIgnored('/Users/username/dev');
+const remove = removeGitIgnored({
+    rootPath: '/Users/username/dev',
+    isSilent: true // false to show user confirmation prompts
+});
 
 remove.on('project-start', (path) => {
     console.log('project started: ', path);
