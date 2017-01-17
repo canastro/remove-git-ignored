@@ -1,6 +1,9 @@
 var removeGitIgnored = require('../src/index');
 
-const remove = removeGitIgnored('/Users/ricardocanastro/dev/canastror/gin');
+const remove = removeGitIgnored({
+    rootPath: '/Users/ricardocanastro/dev/hackday',
+    isSilent: false
+});
 
 remove.on('project-start', (path) => {
     console.log('project started: ', path);

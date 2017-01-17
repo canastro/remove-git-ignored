@@ -18,7 +18,7 @@ This module uses [query-paths](https://github.com/canastro/query-paths) to recur
 
 ## Usage
 ```js
-const removeGitIgnored = require('../src/index');
+const removeGitIgnored = require('remove-git-ignored');
 const remove = removeGitIgnored('/Users/username/dev');
 
 remove.on('project-start', (path) => {
