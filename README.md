@@ -17,7 +17,7 @@ After that I thought I should have a better way to deal with this and started cr
 This module uses [query-paths](https://github.com/canastro/query-paths) to recursively find all the folders with a .gitignore. Then it reads all these files and deletes all files that match what you have defined in it.
 
 ## Demo
-[![asciicast](https://asciinema.org/a/dcarhkuhrd41g5t7boh6q3mte.png)](https://asciinema.org/a/dcarhkuhrd41g5t7boh6q3mte)
+[![asciicast](https://asciinema.org/a/3p1wtf72uqon9zyc7kwtdmue0.png)](https://asciinema.org/a/3p1wtf72uqon9zyc7kwtdmue0)
 
 ## Usage
 ### As cli
